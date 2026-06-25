@@ -358,7 +358,7 @@ body {
 .tonearm {
   position: absolute;
   top: 5%;
-  right: 5%;
+  right: 12%;
   width: 110px;
   transform-origin: calc(100% - 8px) 8px;
   transform: rotate(-32deg);
@@ -368,7 +368,7 @@ body {
 }
 
 .tonearm.active {
-  transform: rotate(-8deg);
+  transform: rotate(-10deg);
 }
 
 .tonearm__arm {

@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
     {{-- ═══════════════════════════════════════════
          Song Data — read by birthday.js on init
          ═══════════════════════════════════════════ --}}
@@ -31,12 +30,10 @@
     {{-- ═══════════════════════════════════════════
          MAIN CONTENT
          ═══════════════════════════════════════════ --}}
-    <main
-        id="main-content"
+    <main id="main-content"
         class="relative z-10 flex flex-col items-center justify-center
                min-h-screen pb-24 opacity-0 pointer-events-none
-               transition-opacity duration-700 ease-in-out"
-    >
+               transition-opacity duration-700 ease-in-out">
 
         {{-- ── Birthday Header ── --}}
         <header class="birthday-header">
@@ -65,27 +62,15 @@
                     {{-- Centre label --}}
                     <div class="vinyl__label">
                         {{-- Check for user's photo: anh.jpg → friend-photo.jpg → friend-photo.png → initials --}}
-                        @if(file_exists(public_path('assets/images/anh.jpg')))
-                            <img
-                                class="vinyl__label-photo"
-                                src="{{ asset('assets/images/anh.jpg') }}"
-                                alt="{{ $name }}"
-                                loading="eager"
-                            >
+                        @if (file_exists(public_path('assets/images/anh.jpg')))
+                            <img class="vinyl__label-photo" src="{{ asset('assets/images/anh.jpg') }}"
+                                alt="{{ $name }}" loading="eager">
                         @elseif(file_exists(public_path('assets/images/friend-photo.jpg')))
-                            <img
-                                class="vinyl__label-photo"
-                                src="{{ asset('assets/images/friend-photo.jpg') }}"
-                                alt="{{ $name }}"
-                                loading="eager"
-                            >
+                            <img class="vinyl__label-photo" src="{{ asset('assets/images/friend-photo.jpg') }}"
+                                alt="{{ $name }}" loading="eager">
                         @elseif(file_exists(public_path('assets/images/friend-photo.png')))
-                            <img
-                                class="vinyl__label-photo"
-                                src="{{ asset('assets/images/friend-photo.png') }}"
-                                alt="{{ $name }}"
-                                loading="eager"
-                            >
+                            <img class="vinyl__label-photo" src="{{ asset('assets/images/friend-photo.png') }}"
+                                alt="{{ $name }}" loading="eager">
                         @else
                             <span class="vinyl__label-initials">MN</span>
                         @endif
@@ -115,18 +100,26 @@
         <div class="player-controls">
             {{-- Previous --}}
             <button class="player-btn" id="prev-btn" aria-label="Bài trước" title="Bài trước">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+                </svg>
             </button>
 
             {{-- Play / Pause --}}
             <button class="player-btn player-btn--play" id="play-btn" aria-label="Phát / Tạm dừng" title="Phát / Tạm dừng">
-                <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                <svg class="icon-pause hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+                <svg class="icon-pause hidden" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
             </button>
 
             {{-- Next --}}
             <button class="player-btn" id="next-btn" aria-label="Bài tiếp" title="Bài tiếp">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z" />
+                </svg>
             </button>
         </div>
 
@@ -150,5 +143,4 @@
             <div class="equalizer__bar"></div>
         </div>
     </aside>
-
 @endsection
