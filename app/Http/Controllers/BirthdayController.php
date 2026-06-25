@@ -16,7 +16,7 @@ class BirthdayController extends Controller
         $name = 'Mộng Như';
 
         $message = 'Chúc ' . $name . ' một ngày sinh nhật thật vui vẻ và tràn đầy hạnh phúc! '
-                 . 'Mong rằng năm mới tuổi sẽ mang đến cho bạn thật nhiều niềm vui, sức khỏe và may mắn. '
+                 . 'Mong rằng tuổi mới sẽ mang đến cho bạn thật nhiều niềm vui, sức khỏe và may mắn. '
                  . 'Cảm ơn bạn vì đã luôn là một người bạn tuyệt vời!';
 
         $songs = [

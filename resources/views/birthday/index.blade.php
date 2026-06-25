@@ -64,8 +64,15 @@
 
                     {{-- Centre label --}}
                     <div class="vinyl__label">
-                        {{-- If the user placed a photo, show it; otherwise show initials --}}
-                        @if(file_exists(public_path('assets/images/friend-photo.jpg')))
+                        {{-- Check for user's photo: anh.jpg → friend-photo.jpg → friend-photo.png → initials --}}
+                        @if(file_exists(public_path('assets/images/anh.jpg')))
+                            <img
+                                class="vinyl__label-photo"
+                                src="{{ asset('assets/images/anh.jpg') }}"
+                                alt="{{ $name }}"
+                                loading="eager"
+                            >
+                        @elseif(file_exists(public_path('assets/images/friend-photo.jpg')))
                             <img
                                 class="vinyl__label-photo"
                                 src="{{ asset('assets/images/friend-photo.jpg') }}"

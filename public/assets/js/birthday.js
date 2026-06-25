@@ -344,7 +344,12 @@ const BirthdayApp = (() => {
 
             setTimeout(() => el.player?.classList.add('visible'), 350);
 
-            // start music
+            // Force-start visuals immediately (vinyl spin, tonearm, particles)
+            // This ensures everything works even if audio files are missing
+            state.isPlaying = true;
+            onPlayStateChange(true);
+
+            // Try to play audio (may fail if no mp3 files — visuals still run)
             AudioManager.play();
 
             // confetti burst
