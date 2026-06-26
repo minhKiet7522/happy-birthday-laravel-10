@@ -7,6 +7,13 @@
     <script type="application/json" id="song-data">@json($songs)</script>
 
     {{-- ═══════════════════════════════════════════
+         Hidden YouTube Player (audio-only)
+         ═══════════════════════════════════════════ --}}
+    <div id="youtube-player-wrap" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;">
+        <div id="yt-player"></div>
+    </div>
+
+    {{-- ═══════════════════════════════════════════
          Animated Background
          ═══════════════════════════════════════════ --}}
     <div class="bg-animated" aria-hidden="true"></div>

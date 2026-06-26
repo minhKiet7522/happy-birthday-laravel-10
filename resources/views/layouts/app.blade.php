@@ -28,7 +28,7 @@
     </script>
 
     {{-- Custom Styles --}}
-    <link rel="stylesheet" href="{{ asset('assets/css/birthday.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/birthday.css') }}?v={{ time() }}">
 
     @yield('styles')
 </head>
@@ -36,8 +36,11 @@
 
     @yield('content')
 
+    {{-- YouTube IFrame API --}}
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     {{-- Custom Scripts --}}
-    <script src="{{ asset('assets/js/birthday.js') }}"></script>
+    <script src="{{ asset('assets/js/birthday.js') }}?v={{ time() }}"></script>
 
     @yield('scripts')
 </body>

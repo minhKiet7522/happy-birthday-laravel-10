@@ -6,7 +6,7 @@
  * Architecture (IIFE — no build step required):
  *
  *  CONFIG               – colours, timing, particle counts
- *  AudioManager         – playlist, play / pause / next / prev, progress
+ *  YouTubeManager       – YouTube IFrame API player, play / pause, state sync
  *  TurntableController  – vinyl spin ↔ audio state
  *  ParticleEngine       – DOM-based particles (bubbles, hearts, sparkles, notes, confetti)
  *  MusicReactiveEffects – speed / density shift when music is playing
@@ -21,7 +21,11 @@ const BirthdayApp = (() => {
        CONFIG
        =================================================== */
     const CONFIG = {
-        songs: [],                       // populated from <script id="song-data">
+        songs: [],                       // populated from <script id="song-data"> (kept for backward compat)
+        youtube: {
+            videoId: 'hV34kAh9IfQ',      // Giữ anh cho ngày hôm qua
+            title: 'Giữ Anh Cho Ngày Hôm Qua',
+        },
         particle: {
             intervalPlaying: 700,        // ms between spawns when music plays
             intervalPaused: 2800,       // ms when paused
@@ -39,8 +43,9 @@ const BirthdayApp = (() => {
        =================================================== */
     const state = {
         isPlaying: false,
-        currentSongIndex: 0,
         overlayDismissed: false,
+        ytReady: false,
+        pendingPlay: false,      // true when overlay dismissed before YT is ready
     };
 
     /* ===================================================
@@ -71,81 +76,162 @@ const BirthdayApp = (() => {
     }
 
     /* ===================================================
-       AUDIO MANAGER
+       YOUTUBE MANAGER
        =================================================== */
-    const AudioManager = (() => {
-        let audio = null;
+    const YouTubeManager = (() => {
+        let ytPlayer = null;
+        let progressTimer = null;
 
         function init() {
-            audio = new Audio();
-            audio.preload = 'auto';
-            audio.volume = 0.85;
-
-            audio.addEventListener('ended', onEnded);
-            audio.addEventListener('timeupdate', updateProgress);
-            audio.addEventListener('loadedmetadata', updateSongInfo);
-            audio.addEventListener('error', onError);
-
-            loadSong(0);
+            // The YT IFrame API calls window.onYouTubeIframeAPIReady when loaded
+            if (window.YT && window.YT.Player) {
+                createPlayer();
+            } else {
+                window.onYouTubeIframeAPIReady = createPlayer;
+            }
         }
 
-        /* ---- helpers ---- */
-        function loadSong(idx) {
-            if (!CONFIG.songs.length) return;
-            state.currentSongIndex = idx;
-            audio.src = CONFIG.songs[idx].file;
-            updateSongInfo();
+        function createPlayer() {
+            ytPlayer = new YT.Player('yt-player', {
+                height: '1',
+                width: '1',
+                videoId: CONFIG.youtube.videoId,
+                playerVars: {
+                    autoplay: 0,
+                    controls: 0,
+                    disablekb: 1,
+                    fs: 0,
+                    modestbranding: 1,
+                    rel: 0,
+                    showinfo: 0,
+                    iv_load_policy: 3,       // no annotations
+                    playsinline: 1,
+                    origin: window.location.origin,
+                },
+                events: {
+                    onReady: onPlayerReady,
+                    onStateChange: onPlayerStateChange,
+                    onError: onPlayerError,
+                },
+            });
         }
 
+        function onPlayerReady() {
+            state.ytReady = true;
+            console.log('🎵 YouTube player ready');
+
+            // Update song title
+            if (el.songTitle) {
+                el.songTitle.textContent = CONFIG.youtube.title;
+            }
+
+            // If user already clicked overlay before YT was ready
+            if (state.pendingPlay) {
+                state.pendingPlay = false;
+                play();
+            }
+        }
+
+        function onPlayerStateChange(event) {
+            const s = event.data;
+
+            switch (s) {
+                case YT.PlayerState.PLAYING:
+                    state.isPlaying = true;
+                    onPlayStateChange(true);
+                    startProgressTracking();
+                    break;
+
+                case YT.PlayerState.PAUSED:
+                    state.isPlaying = false;
+                    onPlayStateChange(false);
+                    stopProgressTracking();
+                    break;
+
+                case YT.PlayerState.BUFFERING:
+                    // Keep current visual state while buffering
+                    // Don't change spinning — will resume when PLAYING fires
+                    break;
+
+                case YT.PlayerState.ENDED:
+                    state.isPlaying = false;
+                    onPlayStateChange(false);
+                    stopProgressTracking();
+                    // Reset progress bar to full
+                    if (el.progressBar) el.progressBar.style.width = '100%';
+                    break;
+
+                case YT.PlayerState.UNSTARTED:
+                    break;
+            }
+        }
+
+        function onPlayerError(event) {
+            console.warn('YouTube player error:', event.data);
+        }
+
+        /* ---- controls ---- */
         function play() {
-            if (!audio.src || !CONFIG.songs.length) return;
-            const p = audio.play();
-            if (p) p.then(() => {
-                state.isPlaying = true;
-                onPlayStateChange(true);
-            }).catch(e => console.warn('Play blocked:', e));
+            if (!state.ytReady || !ytPlayer) {
+                state.pendingPlay = true;
+                return;
+            }
+            ytPlayer.playVideo();
         }
 
         function pause() {
-            audio.pause();
-            state.isPlaying = false;
-            onPlayStateChange(false);
+            if (!state.ytReady || !ytPlayer) return;
+            ytPlayer.pauseVideo();
         }
 
-        function toggle() { state.isPlaying ? pause() : play(); }
-
-        function nextSong() {
-            const was = state.isPlaying;
-            loadSong((state.currentSongIndex + 1) % CONFIG.songs.length);
-            if (was) play();
-        }
-
-        function prevSong() {
-            const was = state.isPlaying;
-            if (audio.currentTime > 3) { audio.currentTime = 0; return; }
-            loadSong((state.currentSongIndex - 1 + CONFIG.songs.length) % CONFIG.songs.length);
-            if (was) play();
+        function toggle() {
+            // Use actual player state for reliability (our tracked state can desync)
+            if (state.ytReady && ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+                const playerState = ytPlayer.getPlayerState();
+                if (playerState === YT.PlayerState.PLAYING) {
+                    pause();
+                } else {
+                    play();
+                }
+            } else if (state.isPlaying) {
+                pause();
+            } else {
+                play();
+            }
         }
 
         function seek(pct) {
-            if (audio.duration) audio.currentTime = audio.duration * pct;
+            if (!state.ytReady || !ytPlayer) return;
+            const duration = ytPlayer.getDuration();
+            if (duration) {
+                ytPlayer.seekTo(duration * pct, true);
+            }
         }
 
-        /* ---- event handlers ---- */
-        function onEnded() { nextSong(); }
-        function onError(e) { console.warn('Audio error', e); }
+        /* ---- progress tracking ---- */
+        function startProgressTracking() {
+            stopProgressTracking();
+            progressTimer = setInterval(updateProgress, 250);
+        }
+
+        function stopProgressTracking() {
+            if (progressTimer) {
+                clearInterval(progressTimer);
+                progressTimer = null;
+            }
+        }
 
         function updateProgress() {
-            if (!audio.duration) return;
-            const pct = (audio.currentTime / audio.duration) * 100;
-            if (el.progressBar) el.progressBar.style.width = pct + '%';
-            if (el.timeDisplay) el.timeDisplay.textContent =
-                fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
-        }
+            if (!state.ytReady || !ytPlayer) return;
+            const current = ytPlayer.getCurrentTime() || 0;
+            const duration = ytPlayer.getDuration() || 0;
+            if (!duration) return;
 
-        function updateSongInfo() {
-            if (CONFIG.songs.length && el.songTitle)
-                el.songTitle.textContent = CONFIG.songs[state.currentSongIndex].title;
+            const pct = (current / duration) * 100;
+            if (el.progressBar) el.progressBar.style.width = pct + '%';
+            if (el.timeDisplay) {
+                el.timeDisplay.textContent = fmt(current) + ' / ' + fmt(duration);
+            }
         }
 
         function fmt(s) {
@@ -154,7 +240,7 @@ const BirthdayApp = (() => {
             return m + ':' + (sec < 10 ? '0' : '') + sec;
         }
 
-        return { init, play, pause, toggle, nextSong, prevSong, seek };
+        return { init, play, pause, toggle, seek };
     })();
 
     /* ===================================================
@@ -331,8 +417,7 @@ const BirthdayApp = (() => {
             el.overlay.addEventListener('touchend', dismiss, { passive: true });
         }
 
-        function dismiss(e) {
-            e.preventDefault?.();
+        function dismiss() {
             if (state.overlayDismissed) return;
             state.overlayDismissed = true;
 
@@ -344,13 +429,13 @@ const BirthdayApp = (() => {
 
             setTimeout(() => el.player?.classList.add('visible'), 350);
 
-            // Force-start visuals immediately (vinyl spin, tonearm, particles)
-            // This ensures everything works even if audio files are missing
+            // Force-start visuals immediately (turntable spin, tonearm, etc.)
+            // YouTube onStateChange(PLAYING) will maintain this once it fires
             state.isPlaying = true;
             onPlayStateChange(true);
 
-            // Try to play audio (may fail if no mp3 files — visuals still run)
-            AudioManager.play();
+            // Start YouTube playback
+            YouTubeManager.play();
 
             // confetti burst
             setTimeout(() => ParticleEngine.burstConfetti(CONFIG.particle.confettiBurst), 500);
@@ -379,16 +464,21 @@ const BirthdayApp = (() => {
        =================================================== */
     const UIController = (() => {
         function init() {
-            el.playBtn?.addEventListener('click', () => AudioManager.toggle());
+            el.playBtn?.addEventListener('click', () => YouTubeManager.toggle());
             el.nextBtn?.addEventListener('click', () => {
-                AudioManager.nextSong();
+                // No next/prev for single YouTube song — restart instead
+                YouTubeManager.seek(0);
+                YouTubeManager.play();
                 ParticleEngine.burstConfetti(28);
             });
-            el.prevBtn?.addEventListener('click', () => AudioManager.prevSong());
+            el.prevBtn?.addEventListener('click', () => {
+                YouTubeManager.seek(0);
+                YouTubeManager.play();
+            });
 
             el.progressContainer?.addEventListener('click', e => {
                 const r = e.currentTarget.getBoundingClientRect();
-                AudioManager.seek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+                YouTubeManager.seek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
             });
         }
 
@@ -416,21 +506,28 @@ const BirthdayApp = (() => {
     function init() {
         cacheElements();
 
-        // Read song list injected by Blade
+        // Read song list injected by Blade (kept for backward compatibility)
         const dataEl = document.getElementById('song-data');
         if (dataEl) {
             try { CONFIG.songs = JSON.parse(dataEl.textContent); }
             catch (e) { console.warn('Song data parse error', e); }
         }
 
-        AudioManager.init();
+        // Set song title to YouTube song immediately
+        if (el.songTitle) {
+            el.songTitle.textContent = CONFIG.youtube.title;
+        }
+
+        // Initialize YouTube player
+        YouTubeManager.init();
+
         OverlayHandler.init();
         UIController.init();
 
         // Default body state
         document.body.classList.add('music-paused');
 
-        console.log('🎂 BirthdayApp ready ·', CONFIG.songs.length, 'song(s) loaded');
+        console.log('🎂 BirthdayApp ready · YouTube mode: ' + CONFIG.youtube.title);
     }
 
     return { init };
