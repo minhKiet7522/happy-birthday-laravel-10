@@ -27,11 +27,32 @@
          OVERLAY — "Click để mở quà"
          ═══════════════════════════════════════════ --}}
     <div class="overlay" id="overlay" role="button" tabindex="0" aria-label="Nhấn để mở quà sinh nhật">
-        {{-- Gift icon --}}
-        <div class="overlay__gift" aria-hidden="true">🎁</div>
+        {{-- 3D Gift Box --}}
+        <div class="gift-box" id="gift-box" aria-hidden="true">
+            {{-- Light burst behind gift --}}
+            <div class="gift-box__burst" id="gift-burst"></div>
 
-        <h2 class="overlay__title">Bạn có một món quà đặc biệt!</h2>
-        <p class="overlay__subtitle">✨ Nhấn để mở ✨</p>
+            {{-- Lid --}}
+            <div class="gift-box__lid" id="gift-lid">
+                <div class="gift-box__lid-face"></div>
+                <div class="gift-box__lid-ribbon"></div>
+                {{-- Bow --}}
+                <div class="gift-box__bow">
+                    <div class="gift-box__bow-loop gift-box__bow-loop--left"></div>
+                    <div class="gift-box__bow-loop gift-box__bow-loop--right"></div>
+                    <div class="gift-box__bow-knot"></div>
+                </div>
+            </div>
+
+            {{-- Base --}}
+            <div class="gift-box__base">
+                <div class="gift-box__base-face"></div>
+                <div class="gift-box__base-ribbon"></div>
+            </div>
+        </div>
+
+        <h2 class="overlay__title" id="overlay-title">Bạn có một món quà đặc biệt!</h2>
+        <p class="overlay__subtitle" id="overlay-subtitle">✨ Nhấn để mở ✨</p>
     </div>
 
     {{-- ═══════════════════════════════════════════

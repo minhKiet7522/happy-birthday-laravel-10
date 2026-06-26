@@ -407,7 +407,7 @@ const BirthdayApp = (() => {
     })();
 
     /* ===================================================
-       OVERLAY HANDLER
+       OVERLAY HANDLER  (Gift Unwrap Animation)
        =================================================== */
     const OverlayHandler = (() => {
         function init() {
@@ -421,27 +421,74 @@ const BirthdayApp = (() => {
             if (state.overlayDismissed) return;
             state.overlayDismissed = true;
 
-            el.overlay.classList.add('hidden');
+            const giftBox = document.getElementById('gift-box');
+            const overlayTitle = document.getElementById('overlay-title');
+            const overlaySubtitle = document.getElementById('overlay-subtitle');
 
-            // reveal content
-            el.mainContent?.classList.remove('opacity-0', 'pointer-events-none');
-            el.mainContent?.classList.add('opacity-100');
+            // Disable further clicks
+            el.overlay.style.cursor = 'default';
 
-            setTimeout(() => el.player?.classList.add('visible'), 350);
+            // ── Phase 1 (0ms): Gift shakes ──
+            if (giftBox) giftBox.classList.add('gift-box--shaking');
 
-            // Force-start visuals immediately (turntable spin, tonearm, etc.)
-            // YouTube onStateChange(PLAYING) will maintain this once it fires
-            state.isPlaying = true;
-            onPlayStateChange(true);
+            // Hide title/subtitle immediately
+            if (overlayTitle) {
+                overlayTitle.style.opacity = '0';
+                overlayTitle.style.transform = 'translateY(20px)';
+            }
+            if (overlaySubtitle) {
+                overlaySubtitle.style.opacity = '0';
+                overlaySubtitle.style.transform = 'translateY(20px)';
+            }
 
-            // Start YouTube playback
-            YouTubeManager.play();
+            // ── Phase 2 (600ms): Lid pops off ──
+            setTimeout(() => {
+                if (giftBox) {
+                    giftBox.classList.remove('gift-box--shaking');
+                    giftBox.classList.add('gift-box--opening');
+                }
+            }, 600);
 
-            // confetti burst
-            setTimeout(() => ParticleEngine.burstConfetti(CONFIG.particle.confettiBurst), 500);
+            // ── Phase 3 (1000ms): Golden burst + confetti ──
+            setTimeout(() => {
+                if (giftBox) giftBox.classList.add('gift-box--burst');
+                ParticleEngine.burstConfetti(CONFIG.particle.confettiBurst);
+            }, 1000);
 
-            // begin continuous particles
-            ParticleEngine.startLoop(true);
+            // ── Phase 4 (1400ms): Box floats away ──
+            setTimeout(() => {
+                if (giftBox) giftBox.classList.add('gift-box--floating');
+            }, 1400);
+
+            // ── Phase 5 (1800ms): Overlay zooms out, reveal content, start music ──
+            setTimeout(() => {
+                el.overlay.classList.add('overlay--unwrapping');
+
+                // Reveal main content underneath
+                el.mainContent?.classList.remove('opacity-0', 'pointer-events-none');
+                el.mainContent?.classList.add('opacity-100');
+
+                setTimeout(() => el.player?.classList.add('visible'), 350);
+
+                // Force-start visuals immediately
+                state.isPlaying = true;
+                onPlayStateChange(true);
+
+                // Start YouTube playback
+                YouTubeManager.play();
+
+                // Begin continuous particles
+                ParticleEngine.startLoop(true);
+
+                // Second confetti burst during reveal
+                setTimeout(() => ParticleEngine.burstConfetti(30), 300);
+
+                // Clean up overlay from DOM after animation completes
+                setTimeout(() => {
+                    el.overlay.classList.add('hidden');
+                    el.overlay.style.display = 'none';
+                }, 1200);
+            }, 1800);
         }
 
         function seedSparkles() {
