@@ -19,6 +19,15 @@
     <div class="bg-animated" aria-hidden="true"></div>
 
     {{-- ═══════════════════════════════════════════
+         Starfield (CSS box-shadow, no JS needed)
+         ═══════════════════════════════════════════ --}}
+    <div class="starfield" aria-hidden="true">
+        <div class="starfield__layer starfield__layer--small"></div>
+        <div class="starfield__layer starfield__layer--medium"></div>
+        <div class="starfield__layer starfield__layer--large"></div>
+    </div>
+
+    {{-- ═══════════════════════════════════════════
          Particles Container
          ═══════════════════════════════════════════ --}}
     <div class="particles-container" id="particles-container" aria-hidden="true"></div>

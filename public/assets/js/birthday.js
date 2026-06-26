@@ -330,6 +330,38 @@ const BirthdayApp = (() => {
                 });
                 return { el: d, life: 5500 };
             },
+
+            shootingStar() {
+                const d = document.createElement('div');
+                d.className = 'particle--shooting-star';
+
+                // Random start position in top 40% of screen
+                const startX = rand(5, 85);
+                const startY = rand(2, 40);
+
+                // Random angle (30-50 degrees downward)
+                const angle = rand(-50, -30);
+
+                // Travel distance
+                const travelX = rand(400, 800);
+                const travelY = rand(200, 500);
+
+                // Random width for variety
+                const width = rand(80, 180);
+
+                const duration = rand(0.6, 1.4);
+
+                Object.assign(d.style, {
+                    left: startX + '%',
+                    top: startY + '%',
+                    width: width + 'px',
+                    animationDuration: duration + 's',
+                    '--angle': angle + 'deg',
+                    '--travel-x': travelX + 'px',
+                    '--travel-y': travelY + 'px',
+                });
+                return { el: d, life: Math.ceil(duration * 1000) + 200 };
+            },
         };
 
         function spawn(type) {
@@ -377,9 +409,20 @@ const BirthdayApp = (() => {
                 timers.push(setInterval(() => active && spawn('note'), gap * 1.4));
             }
 
+            // Shooting stars — more frequent when music plays
+            const shootingStarInterval = playing ? 3000 : 8000;
+            timers.push(setInterval(() => {
+                if (active && Math.random() < 0.7) spawn('shootingStar');
+            }, shootingStarInterval));
+
             // initial splash
             for (let i = 0; i < 6; i++) {
                 setTimeout(() => { spawn('bubble'); spawn('sparkle'); }, i * 180);
+            }
+
+            // Initial shooting star after short delay
+            if (playing) {
+                setTimeout(() => active && spawn('shootingStar'), rand(500, 1500));
             }
         }
 

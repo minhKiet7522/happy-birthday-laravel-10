@@ -104,6 +104,146 @@ body {
 }
 
 /* -------------------------------------------------
+   2b. STARFIELD  (CSS-only, box-shadow technique)
+   ------------------------------------------------- */
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.starfield__layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+/* ── Layer 1: Tiny stars (1px, ~120 stars) ── */
+.starfield__layer--small {
+  box-shadow:
+    25px 18px #fff, 83px 140px #fff, 150px 62px #fff, 210px 200px #fff,
+    290px 30px #fff, 340px 170px #fff, 410px 85px #fff, 480px 220px #fff,
+    560px 45px #fff, 620px 160px #fff, 700px 95px #fff, 770px 250px #fff,
+    850px 15px #fff, 920px 180px #fff, 990px 70px #fff, 1060px 210px #fff,
+    1130px 40px #fff, 1200px 150px #fff, 1280px 100px #fff, 1350px 230px #fff,
+    1420px 55px #fff, 1490px 190px #fff, 1560px 80px #fff, 1640px 245px #fff,
+    1710px 25px #fff, 1780px 160px #fff, 1850px 110px #fff, 1920px 200px #fff,
+    45px 290px #fff, 130px 350px #fff, 200px 420px #fff, 280px 310px #fff,
+    360px 380px #fff, 440px 450px #fff, 510px 320px #fff, 590px 400px #fff,
+    670px 470px #fff, 740px 330px #fff, 820px 410px #fff, 900px 480px #fff,
+    970px 340px #fff, 1050px 390px #fff, 1120px 460px #fff, 1200px 350px #fff,
+    1270px 430px #fff, 1340px 300px #fff, 1420px 470px #fff, 1500px 360px #fff,
+    1580px 440px #fff, 1650px 310px #fff, 1730px 490px #fff, 1800px 370px #fff,
+    55px 540px #fff, 140px 600px #fff, 220px 560px #fff, 310px 630px #fff,
+    380px 520px #fff, 460px 590px #fff, 530px 650px #fff, 610px 530px #fff,
+    690px 610px #fff, 760px 550px #fff, 840px 640px #fff, 910px 510px #fff,
+    1000px 580px #fff, 1070px 660px #fff, 1150px 520px #fff, 1230px 600px #fff,
+    1300px 670px #fff, 1380px 540px #fff, 1460px 620px #fff, 1540px 680px #fff,
+    1610px 530px #fff, 1690px 610px #fff, 1770px 560px #fff, 1860px 640px #fff,
+    35px 720px #fff, 120px 780px #fff, 195px 740px #fff, 275px 810px #fff,
+    350px 700px #fff, 435px 770px #fff, 505px 830px #fff, 585px 710px #fff,
+    665px 790px #fff, 745px 720px #fff, 825px 800px #fff, 895px 730px #fff,
+    975px 810px #fff, 1055px 700px #fff, 1135px 780px #fff, 1215px 840px #fff,
+    1295px 710px #fff, 1375px 790px #fff, 1455px 850px #fff, 1535px 730px #fff,
+    1615px 800px #fff, 1695px 870px #fff, 1775px 750px #fff, 1855px 820px #fff,
+    60px 900px #fff, 155px 960px #fff, 240px 920px #fff, 330px 980px #fff,
+    400px 890px #fff, 490px 950px #fff, 570px 1000px #fff, 650px 910px #fff,
+    730px 970px #fff, 800px 1020px #fff, 880px 930px #fff, 960px 990px #fff,
+    1040px 1040px #fff, 1120px 940px #fff, 1200px 1000px #fff, 1280px 1050px #fff,
+    1360px 920px #fff, 1440px 980px #fff, 1520px 1060px #fff, 1600px 930px #fff;
+  animation: star-twinkle-small 4s ease-in-out infinite alternate;
+  opacity: 0.6;
+}
+
+/* ── Layer 2: Medium stars (1.5px, ~60 stars) ── */
+.starfield__layer--medium {
+  width: 3px;
+  height: 3px;
+  box-shadow:
+    70px 50px rgba(255,255,255,0.9), 190px 130px rgba(255,255,255,0.8),
+    320px 80px rgba(255,255,255,0.85), 450px 200px rgba(255,255,255,0.9),
+    580px 35px rgba(255,255,255,0.8), 710px 170px rgba(255,255,255,0.85),
+    840px 110px rgba(255,255,255,0.9), 970px 240px rgba(255,255,255,0.8),
+    1100px 60px rgba(255,255,255,0.85), 1230px 190px rgba(255,255,255,0.9),
+    1360px 90px rgba(255,255,255,0.8), 1490px 220px rgba(255,255,255,0.85),
+    1620px 45px rgba(255,255,255,0.9), 1750px 180px rgba(255,255,255,0.8),
+    1880px 130px rgba(255,255,255,0.85), 100px 310px rgba(255,255,255,0.9),
+    260px 400px rgba(255,255,255,0.8), 400px 340px rgba(255,255,255,0.85),
+    540px 440px rgba(255,255,255,0.9), 680px 370px rgba(255,255,255,0.8),
+    820px 460px rgba(255,255,255,0.85), 960px 330px rgba(255,255,255,0.9),
+    1100px 420px rgba(255,255,255,0.8), 1240px 360px rgba(255,255,255,0.85),
+    1380px 450px rgba(255,255,255,0.9), 1520px 310px rgba(255,255,255,0.8),
+    1660px 430px rgba(255,255,255,0.85), 1800px 380px rgba(255,255,255,0.9),
+    50px 550px rgba(255,255,255,0.8), 180px 620px rgba(255,255,255,0.85),
+    340px 570px rgba(255,255,255,0.9), 480px 650px rgba(255,255,255,0.8),
+    630px 530px rgba(255,255,255,0.85), 770px 610px rgba(255,255,255,0.9),
+    900px 560px rgba(255,255,255,0.8), 1040px 640px rgba(255,255,255,0.85),
+    1180px 510px rgba(255,255,255,0.9), 1320px 600px rgba(255,255,255,0.8),
+    1460px 550px rgba(255,255,255,0.85), 1600px 630px rgba(255,255,255,0.9),
+    1740px 580px rgba(255,255,255,0.8), 1870px 660px rgba(255,255,255,0.85),
+    110px 730px rgba(255,255,255,0.9), 250px 800px rgba(255,255,255,0.8),
+    420px 750px rgba(255,255,255,0.85), 560px 830px rgba(255,255,255,0.9),
+    710px 700px rgba(255,255,255,0.8), 850px 780px rgba(255,255,255,0.85),
+    1000px 850px rgba(255,255,255,0.9), 1150px 720px rgba(255,255,255,0.8),
+    1290px 810px rgba(255,255,255,0.85), 1430px 760px rgba(255,255,255,0.9),
+    1570px 840px rgba(255,255,255,0.8), 1700px 730px rgba(255,255,255,0.85),
+    1830px 800px rgba(255,255,255,0.9), 160px 920px rgba(255,255,255,0.8),
+    390px 970px rgba(255,255,255,0.85), 620px 940px rgba(255,255,255,0.9),
+    870px 1000px rgba(255,255,255,0.8), 1100px 960px rgba(255,255,255,0.85),
+    1350px 1020px rgba(255,255,255,0.9), 1580px 950px rgba(255,255,255,0.8);
+  animation: star-twinkle-medium 5s ease-in-out infinite alternate;
+  opacity: 0.7;
+}
+
+/* ── Layer 3: Large bright stars (2px, ~20 stars with glow) ── */
+.starfield__layer--large {
+  width: 3px;
+  height: 3px;
+  box-shadow:
+    120px 90px  0 1px rgba(249,168,212,0.9),
+    450px 160px 0 1px rgba(125,211,252,0.9),
+    780px 60px  0 1px rgba(252,211,77,0.9),
+    1100px 200px 0 1px rgba(249,168,212,0.85),
+    1400px 100px 0 1px rgba(125,211,252,0.85),
+    1720px 180px 0 1px rgba(252,211,77,0.85),
+    250px 380px 0 1px rgba(249,168,212,0.9),
+    600px 440px 0 1px rgba(125,211,252,0.9),
+    950px 320px 0 1px rgba(252,211,77,0.9),
+    1300px 400px 0 1px rgba(249,168,212,0.85),
+    1650px 360px 0 1px rgba(125,211,252,0.85),
+    180px 600px 0 1px rgba(252,211,77,0.9),
+    530px 700px 0 1px rgba(249,168,212,0.85),
+    880px 650px 0 1px rgba(125,211,252,0.9),
+    1230px 580px 0 1px rgba(252,211,77,0.85),
+    1560px 720px 0 1px rgba(249,168,212,0.9),
+    350px 850px 0 1px rgba(125,211,252,0.85),
+    700px 920px 0 1px rgba(252,211,77,0.9),
+    1050px 800px 0 1px rgba(249,168,212,0.85),
+    1400px 880px 0 1px rgba(125,211,252,0.9);
+  animation: star-twinkle-large 3s ease-in-out infinite alternate;
+  opacity: 0.9;
+}
+
+/* — Shooting Star Particle (spawned by JS) — */
+.particle--shooting-star {
+  position: absolute;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4) 30%, transparent 100%);
+  border-radius: 2px;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)) drop-shadow(0 0 8px rgba(249,168,212,0.3));
+  animation: shooting-star-fly linear forwards;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------
    3. OVERLAY / WELCOME SCREEN & GIFT BOX
    ------------------------------------------------- */
 .overlay {
@@ -878,6 +1018,31 @@ body.music-playing .vinyl__label {
   animation-duration: 2.5s;
 }
 
+/* Stars twinkle faster when music plays */
+body.music-playing .starfield__layer--small {
+  animation-duration: 2s;
+  opacity: 0.75;
+}
+body.music-playing .starfield__layer--medium {
+  animation-duration: 2.5s;
+  opacity: 0.85;
+}
+body.music-playing .starfield__layer--large {
+  animation-duration: 1.5s;
+  opacity: 1;
+}
+
+/* Stars calm down when paused */
+body.music-paused .starfield__layer--small {
+  animation-duration: 6s;
+}
+body.music-paused .starfield__layer--medium {
+  animation-duration: 7s;
+}
+body.music-paused .starfield__layer--large {
+  animation-duration: 5s;
+}
+
 /* -------------------------------------------------
   10. KEYFRAME ANIMATIONS
    ------------------------------------------------- */
@@ -898,6 +1063,46 @@ body.music-playing .vinyl__label {
   0%   { background-position: 0% 50%;  filter: hue-rotate(0deg);   }
   50%  { filter: hue-rotate(12deg);  }
   100% { background-position: 100% 50%; filter: hue-rotate(-12deg); }
+}
+
+/* Starfield twinkle — small layer */
+@keyframes star-twinkle-small {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.5; }
+}
+
+/* Starfield twinkle — medium layer */
+@keyframes star-twinkle-medium {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 0.85; }
+  100% { opacity: 0.6; }
+}
+
+/* Starfield twinkle — large layer (most visible) */
+@keyframes star-twinkle-large {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+/* Shooting star — diagonal fly across screen */
+@keyframes shooting-star-fly {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(var(--angle, -35deg)) scaleX(0.3);
+  }
+  5% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--angle, -35deg)) scaleX(1);
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--travel-x, 600px), var(--travel-y, 300px)) rotate(var(--angle, -35deg)) scaleX(0.5);
+  }
 }
 
 /* Gift box — idle floating */
