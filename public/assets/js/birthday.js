@@ -436,7 +436,46 @@ const BirthdayApp = (() => {
 
         function updateSpeed(playing) { startLoop(playing); }
 
-        return { startLoop, stopLoop, updateSpeed, burstConfetti, spawn };
+        function createRipple(x, y) {
+            if (!el.particles) return;
+            const r = document.createElement('div');
+            r.className = 'click-ripple';
+            Object.assign(r.style, {
+                left: x + 'px',
+                top: y + 'px',
+            });
+            el.particles.appendChild(r);
+            setTimeout(() => r.remove(), 800);
+        }
+
+        function spawnInteractive(x, y) {
+            if (!el.particles) return;
+            const count = 3 + Math.floor(Math.random() * 3); // 3 to 5 particles
+            const emojis = ['❤️', '💖', '✨', '⭐', '🌸', '💕'];
+            for (let i = 0; i < count; i++) {
+                const d = document.createElement('div');
+                d.className = 'click-particle';
+                d.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 80;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 30; // slightly upward bias
+                const size = 1 + Math.random() * 0.8; // 1rem to 1.8rem
+                
+                Object.assign(d.style, {
+                    left: x + 'px',
+                    top: y + 'px',
+                    fontSize: size + 'rem',
+                    '--tx': tx + 'px',
+                    '--ty': ty + 'px',
+                });
+                el.particles.appendChild(d);
+                setTimeout(() => d.remove(), 1200);
+            }
+        }
+
+        return { startLoop, stopLoop, updateSpeed, burstConfetti, spawn, createRipple, spawnInteractive };
     })();
 
     /* ===================================================
@@ -653,6 +692,19 @@ const BirthdayApp = (() => {
             el.progressContainer?.addEventListener('click', e => {
                 const r = e.currentTarget.getBoundingClientRect();
                 YouTubeManager.seek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+            });
+
+            document.addEventListener('pointerdown', e => {
+                // Only trigger after overlay is dismissed
+                if (!state.overlayDismissed) return;
+
+                // Don't trigger on interactive elements to prevent UI clutter
+                if (e.target.closest('button, a, input, [role="button"], #vinyl-record, .progress-container, .music-player')) {
+                    return;
+                }
+
+                ParticleEngine.createRipple(e.clientX, e.clientY);
+                ParticleEngine.spawnInteractive(e.clientX, e.clientY);
             });
         }
 
