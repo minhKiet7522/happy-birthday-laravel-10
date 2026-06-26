@@ -72,6 +72,8 @@ const BirthdayApp = (() => {
             timeDisplay: document.getElementById('time-display'),
             iconPlay: document.querySelector('.icon-play'),
             iconPause: document.querySelector('.icon-pause'),
+            messageText: document.querySelector('.message-section__text'),
+            messageEmoji: document.querySelector('.message-section__emoji'),
         };
     }
 
@@ -349,7 +351,7 @@ const BirthdayApp = (() => {
                 // Random width for variety
                 const width = rand(80, 180);
 
-                const duration = rand(0.6, 1.4);
+                const duration = rand(1.8, 3.2);
 
                 Object.assign(d.style, {
                     left: startX + '%',
@@ -450,6 +452,82 @@ const BirthdayApp = (() => {
     })();
 
     /* ===================================================
+       TYPEWRITER EFFECT CONTROLLER
+       =================================================== */
+    const TypewriterEffect = (() => {
+        let originalText = '';
+        let originalEmojis = [];
+
+        function init() {
+            if (!el.messageText || !el.messageEmoji) return;
+
+            // Cache original text and emojis, then clear them
+            originalText = el.messageText.textContent.trim();
+            const emojiText = el.messageEmoji.textContent.trim();
+
+            // Split emojis by whitespace
+            originalEmojis = emojiText.split(/\s+/).filter(Boolean);
+
+            // Clear elements and prepare for typing animation
+            el.messageText.textContent = '';
+            el.messageText.classList.remove('typing-complete');
+            el.messageText.classList.add('typing'); // triggers blinking cursor
+
+            // Wrap each emoji in a hidden span
+            el.messageEmoji.innerHTML = originalEmojis
+                .map(emoji => `<span class="emoji-pop">${emoji}</span>`)
+                .join(' ');
+        }
+
+        function start() {
+            if (!el.messageText || !originalText) return;
+
+            let index = 0;
+
+            function typeNext() {
+                if (index < originalText.length) {
+                    const char = originalText[index];
+                    el.messageText.textContent += char;
+                    index++;
+
+                    // Natural delay with random variance
+                    let delay = 50 + Math.random() * 50; // 50ms - 100ms
+                    
+                    // Add dramatic pause for punctuation marks
+                    if (char === '.' || char === '!' || char === '?') {
+                        delay = 600 + Math.random() * 200;
+                    } else if (char === ',' || char === ';' || char === '—' || char === '-') {
+                        delay = 300 + Math.random() * 100;
+                    }
+
+                    setTimeout(typeNext, delay);
+                } else {
+                    // Typing completed, remove cursor
+                    el.messageText.classList.remove('typing');
+                    el.messageText.classList.add('typing-complete');
+
+                    // Trigger staggered emoji pops
+                    popEmojis();
+                }
+            }
+
+            typeNext();
+        }
+
+        function popEmojis() {
+            if (!el.messageEmoji) return;
+            const emojiSpans = el.messageEmoji.querySelectorAll('.emoji-pop');
+            emojiSpans.forEach((span, idx) => {
+                setTimeout(() => {
+                    span.classList.add('popped');
+                }, idx * 280); // staggered pop delay (280ms)
+            });
+        }
+
+        return { init, start };
+    })();
+
+    /* ===================================================
        OVERLAY HANDLER  (Gift Unwrap Animation)
        =================================================== */
     const OverlayHandler = (() => {
@@ -480,6 +558,7 @@ const BirthdayApp = (() => {
                 overlayTitle.style.transform = 'translateY(20px)';
             }
             if (overlaySubtitle) {
+                overlaySubtitle.style.animation = 'none';
                 overlaySubtitle.style.opacity = '0';
                 overlaySubtitle.style.transform = 'translateY(20px)';
             }
@@ -525,6 +604,11 @@ const BirthdayApp = (() => {
 
                 // Second confetti burst during reveal
                 setTimeout(() => ParticleEngine.burstConfetti(30), 300);
+
+                // Trigger typewriter effect after 1.5s (overlay starts dismiss at 1800ms)
+                setTimeout(() => {
+                    TypewriterEffect.start();
+                }, 1500);
 
                 // Clean up overlay from DOM after animation completes
                 setTimeout(() => {
@@ -613,6 +697,9 @@ const BirthdayApp = (() => {
 
         OverlayHandler.init();
         UIController.init();
+
+        // Prepare typewriter effect elements (caches original text/emojis and clears elements)
+        TypewriterEffect.init();
 
         // Default body state
         document.body.classList.add('music-paused');
