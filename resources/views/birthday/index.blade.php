@@ -176,7 +176,7 @@
                 </div>
 
                 {{-- Message after all candles blown --}}
-                <p class="cake-section__wish" id="cake-wish">🎉 Chúc mừng sinh nhật! Mọi điều ước sẽ thành hiện thực! 🎉</p>
+                <p class="cake-section__wish" id="cake-wish">🎉 Mọi điều ước sẽ thành hiện thực!</p>
             </div>
         </section>
 
