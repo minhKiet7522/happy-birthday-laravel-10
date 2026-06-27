@@ -46,6 +46,7 @@ const BirthdayApp = (() => {
         overlayDismissed: false,
         ytReady: false,
         pendingPlay: false,      // true when overlay dismissed before YT is ready
+        songEnded: false,        // true after the first song ends
     };
 
     /* ===================================================
@@ -74,6 +75,14 @@ const BirthdayApp = (() => {
             iconPause: document.querySelector('.icon-pause'),
             messageText: document.querySelector('.message-section__text'),
             messageEmoji: document.querySelector('.message-section__emoji'),
+            // Cake elements
+            messageSection: document.getElementById('message-section'),
+            cakeSection: document.getElementById('cake-section'),
+            cakeInstruction: document.getElementById('cake-instruction'),
+            cakeWish: document.getElementById('cake-wish'),
+            birthdayCake: document.getElementById('birthday-cake'),
+            cakeWrapper: document.querySelector('.cake-wrapper'),
+            candlesContainer: document.getElementById('candles-container'),
         };
     }
 
@@ -161,6 +170,11 @@ const BirthdayApp = (() => {
                     stopProgressTracking();
                     // Reset progress bar to full
                     if (el.progressBar) el.progressBar.style.width = '100%';
+                    // Trigger cake reveal after song ends (only first time)
+                    if (!state.songEnded) {
+                        state.songEnded = true;
+                        setTimeout(() => BirthdayCakeController.showCake(), 1500);
+                    }
                     break;
 
                 case YT.PlayerState.UNSTARTED:
@@ -567,6 +581,110 @@ const BirthdayApp = (() => {
     })();
 
     /* ===================================================
+       BIRTHDAY CAKE CONTROLLER
+       =================================================== */
+    const BirthdayCakeController = (() => {
+        let blownCount = 0;
+        const TOTAL_CANDLES = 5;
+        let cakeVisible = false;
+
+        function init() {
+            if (!el.candlesContainer) return;
+
+            // Attach click handlers to each candle
+            const candles = el.candlesContainer.querySelectorAll('.candle');
+            candles.forEach(candle => {
+                candle.addEventListener('click', () => blowCandle(candle));
+                candle.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        blowCandle(candle);
+                    }
+                });
+            });
+        }
+
+        function showCake() {
+            if (cakeVisible) return;
+            cakeVisible = true;
+
+            // Phase 1: Fade out message section
+            if (el.messageSection) {
+                el.messageSection.classList.add('message--hidden');
+            }
+
+            // Phase 2: After message fades, show cake with two-step transition
+            // Step A: Set display:flex (cake--ready) so it enters layout
+            // Step B: On next frame, add cake--visible to trigger opacity/transform animation
+            setTimeout(() => {
+                if (el.cakeSection) {
+                    el.cakeSection.classList.add('cake--ready');
+                    // Force reflow so the browser registers the display change
+                    void el.cakeSection.offsetHeight;
+                    requestAnimationFrame(() => {
+                        el.cakeSection.classList.add('cake--visible');
+                    });
+                }
+            }, 900);
+        }
+
+        function blowCandle(candleEl) {
+            // Don't blow if already blown or cake isn't visible
+            if (candleEl.classList.contains('candle--blown') || !cakeVisible) return;
+
+            // Blow this candle
+            candleEl.classList.add('candle--blown');
+            blownCount++;
+
+            // Mini confetti burst for each candle
+            ParticleEngine.burstConfetti(8);
+
+            // Check if all candles are blown
+            if (blownCount >= TOTAL_CANDLES) {
+                onAllCandlesBlown();
+            }
+        }
+
+        function onAllCandlesBlown() {
+            // Delay slightly for the last candle's smoke animation
+            setTimeout(() => {
+                // Big confetti celebration!
+                ParticleEngine.burstConfetti(CONFIG.particle.confettiBurst);
+                setTimeout(() => ParticleEngine.burstConfetti(40), 600);
+                setTimeout(() => ParticleEngine.burstConfetti(30), 1200);
+
+                // Cake celebration glow
+                if (el.birthdayCake) {
+                    el.birthdayCake.classList.add('cake--celebrated');
+                }
+
+                // Hide instruction
+                if (el.cakeInstruction) {
+                    el.cakeInstruction.classList.add('instruction--hidden');
+                }
+
+                // After glow, fade out the cake
+                setTimeout(() => {
+                    if (el.cakeWrapper) {
+                        el.cakeWrapper.classList.add('cake-wrapper--hidden');
+                    }
+
+                    // After cake fades out, show wish text
+                    setTimeout(() => {
+                        if (el.cakeWish) {
+                            el.cakeWish.classList.add('wish--visible');
+                        }
+                        // One more confetti burst for the wish reveal
+                        ParticleEngine.burstConfetti(35);
+                    }, 1000);
+                }, 1500);
+            }, 600);
+        }
+
+        return { init, showCake };
+    })();
+
+    /* ===================================================
        OVERLAY HANDLER  (Gift Unwrap Animation)
        =================================================== */
     const OverlayHandler = (() => {
@@ -699,7 +817,7 @@ const BirthdayApp = (() => {
                 if (!state.overlayDismissed) return;
 
                 // Don't trigger on interactive elements to prevent UI clutter
-                if (e.target.closest('button, a, input, [role="button"], #vinyl-record, .progress-container, .music-player')) {
+                if (e.target.closest('button, a, input, [role="button"], #vinyl-record, .progress-container, .music-player, .candle, .cake-section')) {
                     return;
                 }
 
@@ -752,6 +870,9 @@ const BirthdayApp = (() => {
 
         // Prepare typewriter effect elements (caches original text/emojis and clears elements)
         TypewriterEffect.init();
+
+        // Initialize birthday cake controller
+        BirthdayCakeController.init();
 
         // Default body state
         document.body.classList.add('music-paused');

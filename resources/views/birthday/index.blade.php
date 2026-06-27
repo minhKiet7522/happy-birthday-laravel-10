@@ -120,10 +120,64 @@
             </div>
         </section>
 
-        {{-- ── Birthday Message ── --}}
-        <section class="message-section">
-            <p class="message-section__text">{{ $message }}</p>
-            <span class="message-section__emoji" aria-hidden="true">💕 🎂 🎉 🎈</span>
+        {{-- ── Birthday Message → Cake Transition ── --}}
+        <section class="message-cake-section" id="message-cake-section">
+            {{-- Message (visible initially, fades out when song ends) --}}
+            <div class="message-section" id="message-section">
+                <p class="message-section__text">{{ $message }}</p>
+                <span class="message-section__emoji" aria-hidden="true">💕 🎂 🎉 🎈</span>
+            </div>
+
+            {{-- Birthday Cake (hidden initially, appears when song ends) --}}
+            <div class="cake-section" id="cake-section" aria-label="Birthday Cake">
+                <p class="cake-section__instruction" id="cake-instruction">🎂Nhấp vào nến để ước nhé🎂</p>
+
+                <div class="cake-wrapper">
+                    <div class="cake" id="birthday-cake">
+
+                        {{-- Candles (5) --}}
+                        <div class="candles" id="candles-container">
+                            @for ($i = 0; $i < 5; $i++)
+                            <div class="candle" data-candle="{{ $i }}" role="button" tabindex="0" aria-label="Nến {{ $i + 1 }}">
+                                <div class="candle__body"></div>
+                                <div class="candle__wick"></div>
+                                <div class="candle__flame-wrap">
+                                    <div class="candle__flame"></div>
+                                    <div class="candle__flame-inner"></div>
+                                    <div class="candle__flame-glow"></div>
+                                </div>
+                                <div class="candle__smoke">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </div>
+                            @endfor
+                        </div>
+
+                        {{-- Cake Layers --}}
+                        <div class="cake__top-icing"></div>
+                        <div class="cake__layer cake__layer--top"></div>
+                        <div class="cake__drip-container">
+                            <div class="cake__drip" style="left:12%; height:18px;"></div>
+                            <div class="cake__drip" style="left:28%; height:28px;"></div>
+                            <div class="cake__drip" style="left:44%; height:14px;"></div>
+                            <div class="cake__drip" style="left:60%; height:24px;"></div>
+                            <div class="cake__drip" style="left:76%; height:20px;"></div>
+                            <div class="cake__drip" style="left:88%; height:16px;"></div>
+                        </div>
+                        <div class="cake__layer cake__layer--middle"></div>
+                        <div class="cake__layer cake__layer--bottom"></div>
+                        <div class="cake__plate"></div>
+
+                        {{-- Decorations --}}
+                        <div class="cake__cherry cake__cherry--1"></div>
+                        <div class="cake__cherry cake__cherry--2"></div>
+                        <div class="cake__cherry cake__cherry--3"></div>
+                    </div>
+                </div>
+
+                {{-- Message after all candles blown --}}
+                <p class="cake-section__wish" id="cake-wish">🎉 Chúc mừng sinh nhật! Mọi điều ước sẽ thành hiện thực! 🎉</p>
+            </div>
         </section>
 
     </main>
