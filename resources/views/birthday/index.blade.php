@@ -9,7 +9,8 @@
     {{-- ═══════════════════════════════════════════
          Hidden YouTube Player (audio-only)
          ═══════════════════════════════════════════ --}}
-    <div id="youtube-player-wrap" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;">
+    <div id="youtube-player-wrap"
+        style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;">
         <div id="yt-player"></div>
     </div>
 
@@ -98,19 +99,10 @@
 
                     {{-- Centre label --}}
                     <div class="vinyl__label">
-                        {{-- Check for user's photo: anh.jpg → friend-photo.jpg → friend-photo.png → initials --}}
-                        @if (file_exists(public_path('assets/images/anh.jpg')))
-                            <img class="vinyl__label-photo" src="{{ asset('assets/images/anh.jpg') }}"
-                                alt="{{ $name }}" loading="eager">
-                        @elseif(file_exists(public_path('assets/images/friend-photo.jpg')))
-                            <img class="vinyl__label-photo" src="{{ asset('assets/images/friend-photo.jpg') }}"
-                                alt="{{ $name }}" loading="eager">
-                        @elseif(file_exists(public_path('assets/images/friend-photo.png')))
-                            <img class="vinyl__label-photo" src="{{ asset('assets/images/friend-photo.png') }}"
-                                alt="{{ $name }}" loading="eager">
-                        @else
-                            <span class="vinyl__label-initials">MN</span>
-                        @endif
+                        {{-- Gọi trực tiếp tệp ảnh cố định, không quét đĩa hệ thống --}}
+                        <img class="vinyl__label-photo" src="{{ asset('assets/images/anh.jpg') }}" alt="{{ $name }}"
+                            loading="eager">
+
                         <span class="vinyl__label-subtitle">Happy Birthday</span>
                     </div>
 
@@ -138,18 +130,19 @@
                         {{-- Candles (5) --}}
                         <div class="candles" id="candles-container">
                             @for ($i = 0; $i < 5; $i++)
-                            <div class="candle" data-candle="{{ $i }}" role="button" tabindex="0" aria-label="Nến {{ $i + 1 }}">
-                                <div class="candle__body"></div>
-                                <div class="candle__wick"></div>
-                                <div class="candle__flame-wrap">
-                                    <div class="candle__flame"></div>
-                                    <div class="candle__flame-inner"></div>
-                                    <div class="candle__flame-glow"></div>
+                                <div class="candle" data-candle="{{ $i }}" role="button" tabindex="0"
+                                    aria-label="Nến {{ $i + 1 }}">
+                                    <div class="candle__body"></div>
+                                    <div class="candle__wick"></div>
+                                    <div class="candle__flame-wrap">
+                                        <div class="candle__flame"></div>
+                                        <div class="candle__flame-inner"></div>
+                                        <div class="candle__flame-glow"></div>
+                                    </div>
+                                    <div class="candle__smoke">
+                                        <span></span><span></span><span></span>
+                                    </div>
                                 </div>
-                                <div class="candle__smoke">
-                                    <span></span><span></span><span></span>
-                                </div>
-                            </div>
                             @endfor
                         </div>
 
@@ -197,7 +190,8 @@
             </button>
 
             {{-- Play / Pause --}}
-            <button class="player-btn player-btn--play" id="play-btn" aria-label="Phát / Tạm dừng" title="Phát / Tạm dừng">
+            <button class="player-btn player-btn--play" id="play-btn" aria-label="Phát / Tạm dừng"
+                title="Phát / Tạm dừng">
                 <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                 </svg>
